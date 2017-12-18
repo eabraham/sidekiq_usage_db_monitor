@@ -16,8 +16,8 @@ Juwelier::Tasks.new do |gem|
   gem.name = "sidekiq-usage-db-monitor"
   gem.homepage = "http://github.com/eabraham/sidekiq-usage-db-monitor"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Gem to make monitoring sidekiq DB usage easier.}
+  gem.description = %Q{Gem to make monitoring sidekiq DB usage easier.}
   gem.email = "ericthredsbeard@gmail.com"
   gem.authors = ["Eric Abrahamsn"]
 
