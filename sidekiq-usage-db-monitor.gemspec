@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib".freeze]
   s.authors = ["Eric Abrahamsn".freeze]
   s.date = "2017-12-18"
-  s.description = "Gem to make monitoring sidekiq DB usage easier.".freeze
+  s.description = "TODO: longer description of your gem".freeze
   s.email = "ericthredsbeard@gmail.com".freeze
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/eabraham/sidekiq-usage-db-monitor".freeze
   s.licenses = ["MIT".freeze]
   s.rubygems_version = "2.6.10".freeze
-  s.summary = "Gem to make monitoring sidekiq DB usage easier.".freeze
+  s.summary = "TODO: one-line summary of your gem".freeze
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
