@@ -1,4 +1,4 @@
-require "sidekiq/sidekiq/usage-db-monitor/web_extension"
+require "sidekiq/usage-db-monitor/web_extension"
 
 if defined?(Sidekiq::Web)
   Sidekiq::Web.register Sidekiq::UsageDbMonitor::WebExtension
