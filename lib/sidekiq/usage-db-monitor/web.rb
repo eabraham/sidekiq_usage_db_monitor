@@ -7,6 +7,6 @@ if defined?(Sidekiq::Web)
     # For sidekiq < 2.5
     Sidekiq::Web.tabs << "Usage DB Monitor"
   else
-    Sidekiq::Web.tabs["Usage DB Monitor"] = "Usage DB Monitor"
+    Sidekiq::Web.tabs["Usage DB Monitor"] = "usage-db-monitor"
   end
 end
