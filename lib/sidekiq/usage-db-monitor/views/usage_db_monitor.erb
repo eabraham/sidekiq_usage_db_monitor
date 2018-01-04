@@ -4,7 +4,14 @@
   </div>
 </header>
 <div class="row chart">
-  <div id="workers-table-duration" data-update-url="/sidekiq/table-duration"></div>
+  <h4>Read Requests Duration by Table</h4>
+  <div id="read-workers-table-duration" data-update-url="/sidekiq/table-duration?type=read"></div>
+  <div id="read-workers-table-duration-legend"></div>
+</div>
+<div class="row chart">
+  <h4>Write Requests Duration by Table</h4>
+  <div id="write-workers-table-duration" data-update-url="/sidekiq/table-duration?type=write"></div>
+  <div id="write-workers-table-duration-legend"></div>
 </div>
 <script type="text/javascript">
 // D3 3.5.16
@@ -25,10 +32,10 @@ var nodes=vis.selectAll("path").data(series.stack.filter(function(d){return d.y!
 
 var poller;
 
-var realtimeGraph = function(updatePath) {
-  var timeInterval = parseInt(localStorage.timeInterval || '5000');
+var readWorkersTableDurationGraph = function(updatePath) {
+  var timeInterval = parseInt(localStorage.timeInterval || '20000');
 
-  var graphElement = document.getElementById("workers-table-duration");
+  var graphElement = document.getElementById("read-workers-table-duration");
   var maxDataPoints = 100;
 
   var graph = new Rickshaw.Graph( {
@@ -37,8 +44,9 @@ var realtimeGraph = function(updatePath) {
     height: 200,
     renderer: 'bar',
     interpolation: 'linear',
-    series: new Rickshaw.Series.FixedDuration([{ name: 'plans', color: '#168482' }, { name: 'facts', color: '#B1003E' }, { name: 'schema_migrations', color: '#4682b4' }], undefined, {
+    series: new Rickshaw.Series.FixedDuration([{ name: 'plans', color: '#168482' }], undefined, {
         timeInterval: timeInterval,
+        stack: false,
         timeBase: Math.floor(new Date().getTime() / (60000)),
         maxDataPoints: maxDataPoints,
     })
@@ -51,7 +59,9 @@ var realtimeGraph = function(updatePath) {
 
   graph.render();
 
-  var legend = document.querySelector('#realtime-legend');
+  graph.series.dropData(); //remove default series
+
+  var legend = document.querySelector('#read-workers-table-duration-legend');
   var Hover = Rickshaw.Class.create(Rickshaw.Graph.HoverDetail, {
     render: function(args) {
 
@@ -65,14 +75,20 @@ var realtimeGraph = function(updatePath) {
       args.detail.sort(function(a, b) { return a.order - b.order }).forEach( function(d) {
         var line = document.createElement('div');
         line.className = 'line';
+        line.style.display = 'inline-block';
+        line.style.margin = '0 10px 0 0';
 
         var swatch = document.createElement('div');
         swatch.className = 'swatch';
         swatch.style.backgroundColor = d.series.color;
+        swatch.style.width = "10px";
+        swatch.style.height = "10px";
+        swatch.style.display = 'inline-block';
 
-        var label = document.createElement('div');
+        var label = document.createElement('span');
         label.className = 'tag';
-        label.innerHTML = d.name + ": " + Math.floor(d.formattedYValue).numberWithDelimiter();
+        label.innerHTML = d.name + ": " + Math.floor(d.formattedYValue).numberWithDelimiter() + " ms";
+        label.style.padding = '0 0 0 5px';
 
         line.appendChild(swatch);
         line.appendChild(label);
@@ -101,14 +117,14 @@ var realtimeGraph = function(updatePath) {
   	if (typeof min_since_epoch == "undefined") {
   		min_since_epoch = Math.floor((new Date).getTime() / 60000);
   	}
-  	$.getJSON($("#workers-table-duration").data("update-url"), { min_since_epoch: min_since_epoch },function(data) {
+  	$.getJSON($("#read-workers-table-duration").data("update-url"), { min_since_epoch: min_since_epoch },function(data) {
       dataPoint = {};
       keys = Object.keys(data.durations);
       keys.forEach(function(k) {
         dataPoint[k] = data.durations[k];
       });
       if (seed === 1) {
-        graph.series.addData(dataPoint, min_since_epoch);
+        graph.series.addData(dataPoint, min_since_epoch * 60);
         graph.series.forEach(function(series){
           var series_data = [];
           series_data = series.data;
@@ -121,7 +137,7 @@ var realtimeGraph = function(updatePath) {
       }
       else if (last_min_update < data.metadata.min_since_epoch) {
       	last_min_update = data.metadata.min_since_epoch;
-        graph.series.addData(dataPoint, min_since_epoch);
+        graph.series.addData(dataPoint, min_since_epoch * 60);
         graph.series.forEach(function(series){
           var series_data = [];
           series_data = series.data;
@@ -145,25 +161,147 @@ var realtimeGraph = function(updatePath) {
   }   
 }
 
+var writeWorkersTableDurationGraph = function(updatePath) {
+  var timeInterval = parseInt(localStorage.timeInterval || '20000');
+
+  var graphElement = document.getElementById("write-workers-table-duration");
+  var maxDataPoints = 100;
+
+  var graph = new Rickshaw.Graph( {
+    element: graphElement,
+    width: responsiveWidth(),
+    height: 200,
+    renderer: 'bar',
+    interpolation: 'linear',
+    series: new Rickshaw.Series.FixedDuration([{ name: 'plans', color: '#168482' }], undefined, {
+        timeInterval: timeInterval,
+        stack: false,
+        timeBase: Math.floor(new Date().getTime() / (60000)),
+        maxDataPoints: maxDataPoints,
+    })
+  });
+
+  var y_axis = new Rickshaw.Graph.Axis.Y( {
+    graph: graph,
+    ticksTreatment: 'glow'
+  });
+
+  graph.render();
+
+  graph.series.dropData(); //remove default series
+
+  var legend = document.querySelector('#write-workers-table-duration-legend');
+  var Hover = Rickshaw.Class.create(Rickshaw.Graph.HoverDetail, {
+    render: function(args) {
+
+      legend.innerHTML = "";
+
+      var timestamp = document.createElement('div');
+      timestamp.className = 'timestamp';
+      timestamp.innerHTML = args.formattedXValue;
+      legend.appendChild(timestamp);
+
+      args.detail.sort(function(a, b) { return a.order - b.order }).forEach( function(d) {
+        var line = document.createElement('div');
+        line.className = 'line';
+        line.style.display = 'inline-block';
+        line.style.margin = '0 10px 0 0';
+
+        var swatch = document.createElement('div');
+        swatch.className = 'swatch';
+        swatch.style.backgroundColor = d.series.color;
+        swatch.style.width = "10px";
+        swatch.style.height = "10px";
+        swatch.style.display = 'inline-block';
+
+        var label = document.createElement('span');
+        label.className = 'tag';
+        label.innerHTML = d.name + ": " + Math.floor(d.formattedYValue).numberWithDelimiter() + " ms";
+        label.style.padding = '0 0 0 5px';
+
+        line.appendChild(swatch);
+        line.appendChild(label);
+
+        legend.appendChild(line);
+
+        var dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.top = graph.y(d.value.y0 + d.value.y) + 'px';
+        dot.style.borderColor = d.series.color;
+
+        this.element.appendChild(dot);
+
+        dot.className = 'dot active';
+
+        this.show();
+
+      }, this );
+    }
+  });
+  var hover = new Hover( { graph: graph } );
+
+  var last_min_update = 0;
+  requestTimestamp = function(min_since_epoch, seed) {
+  	seed = seed || 0;
+  	if (typeof min_since_epoch == "undefined") {
+  		min_since_epoch = Math.floor((new Date).getTime() / 60000);
+  	}
+  	$.getJSON($("#write-workers-table-duration").data("update-url"), { min_since_epoch: min_since_epoch },function(data) {
+      dataPoint = {};
+      keys = Object.keys(data.durations);
+      keys.forEach(function(k) {
+        dataPoint[k] = data.durations[k];
+      });
+      if (seed === 1) {
+        graph.series.addData(dataPoint, min_since_epoch * 60);
+        graph.series.forEach(function(series){
+          var series_data = [];
+          series_data = series.data;
+          series_data.sort(function(a,b){
+            return a.x - b.x;
+          });
+          series.data = series_data;
+        });
+        graph.render();
+      }
+      else if (last_min_update < data.metadata.min_since_epoch) {
+      	last_min_update = data.metadata.min_since_epoch;
+        graph.series.addData(dataPoint, min_since_epoch * 60);
+        graph.series.forEach(function(series){
+          var series_data = [];
+          series_data = series.data;
+          series_data.sort(function(a,b){
+            return a.x - b.x;
+          });
+          series.data = series_data;
+        });
+        graph.render();
+      }
+    });
+  };
+
+  poller = setInterval(requestTimestamp, timeInterval) ;
+
+  //seed initial data
+  var min_since_epoch = Math.floor((new Date).getTime() / 60000);
+  for (i = 0; i < maxDataPoints; i++){
+    requestTimestamp(min_since_epoch-i, 1);
+  }   
+}
+
+Number.prototype.numberWithDelimiter = function(delimiter) {
+  var number = this + '', delimiter = delimiter || ',';
+  var split = number.split('.');
+  split[0] = split[0].replace(
+      /(\d)(?=(\d\d\d)+(?!\d))/g,
+      '$1' + delimiter
+  );
+  return split.join('.');
+};
+
 $(function(){
-  realtimeGraph();
-
-  if (typeof localStorage.timeInterval !== 'undefined'){
-    $('div.interval-slider input').val(localStorage.timeInterval);
-    setSliderLabel(localStorage.timeInterval);
-  }
-
-  $(document).on('change', 'div.interval-slider input', function(){
-    clearInterval(poller);
-    localStorage.timeInterval = $(this).val();
-    setSliderLabel($(this).val());
-    resetGraphs();
-    renderGraphs();
-  });
-
-  $(document).on('mousemove', 'div.interval-slider input', function(){
-    setSliderLabel($(this).val());
-  });
+  readWorkersTableDurationGraph();
+  writeWorkersTableDurationGraph();
 
 });
 

@@ -10,16 +10,16 @@ module Sidekiq
         end
 
         app.get '/table-duration' do
-          min_since_epoch = params['min_since_epoch'].to_i
+          min_since_epoch = params['min_since_epoch'].to_i - 1
+          action = params['type']
 
-          action = 'read'
           @redis = Redis.new({})
           durations = @redis.hgetall("sidekiq-job-planner-by-table-duration-#{action}-#{min_since_epoch}")
 
           tables = ActiveRecord::Base.connection.tables
 
           tables.each do |table, value|
-            durations[table] = durations[table].to_i
+            durations[table] = durations[table].to_i / 1000.0
           end
           payload = {
               durations: durations,

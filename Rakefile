@@ -11,6 +11,7 @@ rescue Bundler::BundlerError => e
 end
 require 'rake'
 require 'juwelier'
+require 'redis'
 Juwelier::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
   gem.name = "sidekiq-usage-db-monitor"

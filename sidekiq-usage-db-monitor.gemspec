@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Eric Abrahamsn".freeze]
-  s.date = "2017-12-22"
+  s.date = "2018-01-03"
   s.description = "Gem to make monitoring sidekiq DB usage easier.".freeze
   s.email = "ericthredsbeard@gmail.com".freeze
   s.extra_rdoc_files = [
@@ -28,23 +28,32 @@ Gem::Specification.new do |s|
     "VERSION",
     "config.ru",
     "lib/sidekiq-usage-db-monitor.rb",
+    "lib/sidekiq/usage-db-monitor.rb",
+    "lib/sidekiq/usage-db-monitor/assets/.DS_Store",
+    "lib/sidekiq/usage-db-monitor/assets/javascripts/usage_db_monitor.js",
+    "lib/sidekiq/usage-db-monitor/db_redis_logger.rb",
+    "lib/sidekiq/usage-db-monitor/views/usage_db_monitor.erb",
+    "lib/sidekiq/usage-db-monitor/web.rb",
+    "lib/sidekiq/usage-db-monitor/web_extension.rb",
     "sidekiq-usage-db-monitor.gemspec"
   ]
   s.homepage = "http://github.com/eabraham/sidekiq-usage-db-monitor".freeze
   s.licenses = ["MIT".freeze]
-  s.rubygems_version = "2.6.10".freeze
+  s.rubygems_version = "2.6.14".freeze
   s.summary = "Gem to make monitoring sidekiq DB usage easier.".freeze
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<redis>.freeze, [">= 0"])
       s.add_development_dependency(%q<shoulda>.freeze, [">= 0"])
       s.add_development_dependency(%q<rdoc>.freeze, ["~> 3.12"])
       s.add_development_dependency(%q<bundler>.freeze, ["~> 1.0"])
       s.add_development_dependency(%q<juwelier>.freeze, ["~> 2.1.0"])
       s.add_development_dependency(%q<simplecov>.freeze, [">= 0"])
     else
+      s.add_dependency(%q<redis>.freeze, [">= 0"])
       s.add_dependency(%q<shoulda>.freeze, [">= 0"])
       s.add_dependency(%q<rdoc>.freeze, ["~> 3.12"])
       s.add_dependency(%q<bundler>.freeze, ["~> 1.0"])
@@ -52,6 +61,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<simplecov>.freeze, [">= 0"])
     end
   else
+    s.add_dependency(%q<redis>.freeze, [">= 0"])
     s.add_dependency(%q<shoulda>.freeze, [">= 0"])
     s.add_dependency(%q<rdoc>.freeze, ["~> 3.12"])
     s.add_dependency(%q<bundler>.freeze, ["~> 1.0"])
