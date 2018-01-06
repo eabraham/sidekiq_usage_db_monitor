@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Eric Abrahamsn".freeze]
-  s.date = "2018-01-03"
+  s.date = "2018-01-06"
   s.description = "Gem to make monitoring sidekiq DB usage easier.".freeze
   s.email = "ericthredsbeard@gmail.com".freeze
   s.extra_rdoc_files = [
@@ -29,8 +29,6 @@ Gem::Specification.new do |s|
     "config.ru",
     "lib/sidekiq-usage-db-monitor.rb",
     "lib/sidekiq/usage-db-monitor.rb",
-    "lib/sidekiq/usage-db-monitor/assets/.DS_Store",
-    "lib/sidekiq/usage-db-monitor/assets/javascripts/usage_db_monitor.js",
     "lib/sidekiq/usage-db-monitor/db_redis_logger.rb",
     "lib/sidekiq/usage-db-monitor/views/usage_db_monitor.erb",
     "lib/sidekiq/usage-db-monitor/web.rb",
