@@ -29,6 +29,27 @@ module Sidekiq
             }
           json(payload)
         end
+
+        app.get '/table-count' do
+          min_since_epoch = params['min_since_epoch'].to_i - 1
+          action = params['type']
+
+          @redis = Redis.new({})
+          counts = @redis.hgetall("sidekiq-job-planner-by-table-count-#{action}-#{min_since_epoch}")
+
+          tables = ActiveRecord::Base.connection.tables
+
+          tables.each do |table, value|
+            counts[table] = counts[table].to_i
+          end
+          payload = {
+              counts: counts,
+              metadata:  {
+                min_since_epoch: min_since_epoch
+              }
+            }
+          json(payload)
+        end
       end
     end
   end
